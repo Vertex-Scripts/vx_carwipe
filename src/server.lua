@@ -7,6 +7,10 @@ local function sendNotification(source, notification)
 	lib.callback("vx_carwipe:sendNotification", source, function() end, notification)
 end
 
+local function seekCarwipeTimer(milliseconds)
+	timer = Config.interval - milliseconds
+end
+
 local function scheduleCarwipe()
 	isAutomaticCarwipeCancelled = false
 	timer = 0
@@ -15,6 +19,7 @@ local function scheduleCarwipe()
 		for _, notifyAt in ipairs(Config.notifies) do
 			local remainingTime = (Config.interval - timer) / 1000
 			local metric = remainingTime < 60 and "seconds" or "minutes"
+			lib.print.info(remainingTime, metric)
 
 			if remainingTime == notifyAt / 1000 then
 				sendNotification(-1, {
@@ -53,8 +58,12 @@ lib.addCommand("carwipe", {
 	restricted = Config.commandGroups,
 	help = "Wipe all vehicles",
 }, function()
-	cancelAutomaticCarwipe()
-	runCarwipe()
+	seekCarwipeTimer(Config.carwipeCommandDelay)
+	sendNotification(-1, {
+		type = "info",
+		title = "Carwipe",
+		description = ("Manual carwipe scheduled in %d seconds."):format(math.floor(Config.carwipeCommandDelay / 1000))
+	})
 end)
 
 lib.addCommand("cancelcarwipe", {

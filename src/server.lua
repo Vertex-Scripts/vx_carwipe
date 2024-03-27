@@ -19,7 +19,6 @@ local function scheduleCarwipe()
 		for _, notifyAt in ipairs(Config.notifies) do
 			local remainingTime = (Config.interval - timer) / 1000
 			local metric = remainingTime < 60 and "seconds" or "minutes"
-			lib.print.info(remainingTime, metric)
 
 			if remainingTime == notifyAt / 1000 then
 				sendNotification(-1, {
